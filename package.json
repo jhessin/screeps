@@ -1,0 +1,10 @@
+{
+  "name": "screeps.com",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-screeps": "^1.1.1"
+  }
+}
