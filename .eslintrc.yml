@@ -3,7 +3,10 @@ env:
   commonjs: true
   es6: true
   node: true
+  screeps/screeps: true
 extends: 'screeps'
+plugins:
+  - screeps
 globals:
   Atomics: readonly
   SharedArrayBuffer: readonly

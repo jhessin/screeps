@@ -218,6 +218,11 @@ eslint-config-screeps@^1.1.1:
   resolved "https://registry.yarnpkg.com/eslint-config-screeps/-/eslint-config-screeps-1.1.1.tgz#70af4645d5bba972482dedf36d91070928f731a5"
   integrity sha1-cK9GRdW7qXJILe3zbZEHCSj3MaU=
 
+eslint-plugin-screeps@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-screeps/-/eslint-plugin-screeps-2.0.0.tgz#b011a68405c79be6f5ba69f5e72ae4d790540edd"
+  integrity sha512-6m+1dOwkRGPra70wEIBZkDiqy2sYGIfkEoklWNjUMn8izISD56wuOYEChaCoMiCc4DvUN3SzOzL2PJxD1qpMig==
+
 eslint-scope@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/eslint-scope/-/eslint-scope-5.0.0.tgz#e87c8887c73e8d1ec84f1ca591645c358bfc8fb9"
