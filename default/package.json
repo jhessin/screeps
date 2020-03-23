@@ -4,8 +4,9 @@
   "main": "main.js",
   "license": "MIT",
   "devDependencies": {
-    "@types/lodash": "^4.14.149",
+    "@types/lodash": "3.10.1",
     "@types/screeps": "^3.0.0",
+    "eslint": "^6.8.0",
     "eslint-config-screeps": "^1.1.1",
     "eslint-plugin-screeps": "^2.0.0",
     "tern-screeps": "^0.0.4"
