@@ -1,4 +1,4 @@
-var roleUpgrader = require('role.upgrader');
+const roleUpgrader = require('role.upgrader');
 const c = require('constants');
 
 module.exports = {
@@ -45,8 +45,10 @@ module.exports = {
         }
     },
     build: function(spawn) {
-        return spawn.createCreep([WORK,WORK,CARRY,MOVE], null, {
-            role: c.BUILDER, working: false
-        });
+        let energy = spawn.room.energyCapacityAvailable;
+        // return spawn.createCreep([WORK,WORK,CARRY,MOVE], null, {
+            // role: c.BUILDER, working: false
+        // });
+        return spawn.CreateCreep(energy, c.HARVESTER);
     }
 };

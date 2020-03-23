@@ -1,4 +1,4 @@
-var roleBuilder = require('role.builder');
+const roleBuilder = require('role.builder');
 const c = require('constants');
 
 module.exports = {

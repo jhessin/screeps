@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"ene",
+				"energyCapacity"
+			],
+			[
+				"energyCa",
+				"energyCapacityAvailable\t(num)"
+			],
+			[
 				"Mem",
 				"Memory.creeps"
 			]
@@ -23,6 +31,18 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"rename",
+				"TernJS: Rename variable"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Discover Packages"
+			],
+			[
+				"console",
+				"Package Control: Install Package"
+			],
 			[
 				"wrap",
 				"Word Wrap: Toggle"
@@ -65,10 +85,13 @@
 	"file_history":
 	[
 		"/Users/jhessin/Library/Application Support/Screeps/scripts/screeps.com/default/main.js",
+		"/Users/jhessin/Library/Application Support/Screeps/scripts/screeps.com/default/prototype.spawn.js",
+		"/Users/jhessin/Library/Application Support/Screeps/scripts/screeps.com/default/role.builder.js",
 		"/Users/jhessin/Library/Application Support/Screeps/scripts/screeps.com/default/role.harvester.js",
 		"/Users/jhessin/Library/Application Support/Screeps/scripts/screeps.com/default/role.upgrader.js",
+		"/Users/jhessin/Library/Application Support/Sublime Text 3/Packages/prototype.spawn.js",
 		"/Users/jhessin/Library/Application Support/Screeps/scripts/screeps.com/default/role.repairer.js",
-		"/Users/jhessin/Library/Application Support/Screeps/scripts/screeps.com/default/role.builder.js",
+		"/Users/jhessin/Library/Application Support/Screeps/scripts/screeps.com/default/screeps_official.sublime-project",
 		"/Users/jhessin/Library/Application Support/Sublime Text 3/Packages/JsFormat/JsFormat.sublime-settings",
 		"/Users/jhessin/Library/Application Support/Sublime Text 3/Packages/User/JsFormat.sublime-settings",
 		"/Users/jhessin/Library/Application Support/Sublime Text 3/Packages/SublimeCodeIntel/SublimeCodeIntel.sublime-settings",
@@ -184,6 +207,12 @@
 	"selected_group": 0,
 	"settings":
 	{
+		"_vintageous_last_buffer_search": "createCustomCreep",
+		"_vintageous_last_buffer_search_command": "vi_star",
+		"_vintageous_reset_during_init": true,
+		"vintage":
+		{
+		}
 	},
 	"show_minimap": true,
 	"show_open_files": false,
