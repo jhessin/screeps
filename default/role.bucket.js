@@ -3,6 +3,8 @@ const c = require('constants');
 module.exports = {
   // a function to run the logic for this role
   run: function(creep) {
+    let name = creep.name;
+
     // if creep is bringing energy to the spawn or an extension but has no energy left
     if (creep.memory.working == true && creep.carry.energy == 0) {
       // switch state
@@ -18,7 +20,7 @@ module.exports = {
     }
 
     // if creep is supposed to transfer energy to the spawn or an extension
-    if (creep.memory.working == true) {
+    if (creep.memory.working == true && name == `BB${c.TOTAL_BUCKETS}`) {
       // find closest spawn or extension which is not full
       var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
         // the second argument for findClosestByPath is an object which takes
@@ -35,10 +37,40 @@ module.exports = {
           creep.moveTo(structure);
         }
       }
+    } else if (creep.memory.working) {
+      for (var i = 1; i < c.TOTAL_BUCKETS; i++) {
+        if (name === `BB${i}`) {
+          let target = Game.creeps[`BB${i + 1}`];
+          if (
+            target &&
+            creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE
+          ) {
+            creep.moveTo(target);
+          } else if (!target) {
+            target = Game.flags[`BB${i + 1}`];
+            creep.moveTo(target);
+          }
+        }
+      }
     }
     // if creep is supposed to harvest energy from source
     else {
-      this.harvest(creep);
+      if (name === 'BB1') {
+        let source = Game.flags.BB1.findClosestByPath(FIND_SOURCES);
+        if (creep.harvest(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source);
+        }
+      } else
+        for (var i = 2; i <= c.TOTAL_BUCKETS; i++) {
+          if (name === `BB${i}`) {
+            let target = Game.creeps[`BB${i - 1}`];
+            if (target) {
+              creep.moveTo(target);
+            } else {
+              creep.moveTo(Game.flags[`BB${i - 1}`]);
+            }
+          }
+        }
     }
   },
   harvest: function(creep) {

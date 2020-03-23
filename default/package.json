@@ -1,0 +1,13 @@
+{
+  "name": "screeps",
+  "version": "1.0.0",
+  "main": "main.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/lodash": "^4.14.149",
+    "@types/screeps": "^3.0.0",
+    "eslint-config-screeps": "^1.1.1",
+    "eslint-plugin-screeps": "^2.0.0",
+    "tern-screeps": "^0.0.4"
+  }
+}

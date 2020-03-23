@@ -21,7 +21,7 @@ module.exports = {
 
     // if creep is supposed to repair something
     if (creep.memory.working == true) {
-      this.default(creep);
+      this.walls(creep);
     }
     // if creep is supposed to harvest energy from source
     else {
@@ -80,6 +80,29 @@ module.exports = {
       creep.moveTo(closest);
     } else {
       // look for construction sites
+      roleBuilder.run(creep);
+    }
+  },
+  walls: function(creep) {
+    // get walls that need repaired
+    let walls = creep.room.find(FIND_STRUCTURES, {
+      filter: s => s.structureType == STRUCTURE_WALL
+    });
+
+    let target;
+    for (let pct = 0.0001; pct <= 1; pct += 0.0001) {
+      target = creep.pos.findClosestByPath(walls, {
+        filter: w => w.hits / w.hitsMax < pct
+      });
+
+      if (target) {
+        break;
+      }
+    }
+
+    if (target && creep.repair(target) == ERR_NOT_IN_RANGE) {
+      creep.moveTo(target);
+    } else if (!target) {
       roleBuilder.run(creep);
     }
   }

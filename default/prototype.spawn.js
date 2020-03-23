@@ -1,4 +1,6 @@
 // prototype.spawn.js
+const c = require('constants');
+
 module.exports = function() {
 	if (!StructureSpawn.prototype._createCreep) {
 		StructureSpawn.prototype._createCreep = StructureSpawn.prototype.createCreep;
@@ -18,6 +20,14 @@ module.exports = function() {
 				body.push(MOVE);
 			}
 
-			return this._createCreep(body, null, { role, working: false })
+			if (role == c.BUCKETIER) {
+				for (i = 1; i < c.NUM_BUCKETS; i++) {
+					if (!Game.creeps[`BB${i}`]) {
+						this._createCreep(body, `BB${i}`, { working: false });
+                    }
+                }
+			} else {
+				return this._createCreep(body, null, { role, working: false });
+            }
 		}
 };
