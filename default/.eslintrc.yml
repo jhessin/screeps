@@ -5,16 +5,13 @@ env:
   es6: true
 extends:
   - 'eslint:recommended'
-  - 'plugin:@typescript-eslint/eslint-recommended'
   - 'screeps'
 globals:
   Atomics: readonly
   SharedArrayBuffer: readonly
-parser: '@typescript-eslint/parser'
 parserOptions:
   ecmaVersion: 2018
 plugins:
-  - '@typescript-eslint'
   - 'screeps'
 rules:
   indent:

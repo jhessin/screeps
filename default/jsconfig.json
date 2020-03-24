@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "checkJs": true,
-    "module": "commonjs",
+    "module": "umd",
     "allowSyntheticDefaultImports": true
   },
   "typeAcquisition": {
