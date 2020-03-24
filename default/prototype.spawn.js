@@ -52,7 +52,11 @@ module.exports = function() {
 		      }
 		    }
 		  } else {
-		    return this.spawnCreep(body, null, { role, working: false });
+        for (name of NAMES) {
+          let r = this.spawnCreep(body, name, { role, working: false });
+          if (r === ERR_NAME_EXISTS) continue;
+          return r;
+        }
 		  }
 		};
 };
