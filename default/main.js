@@ -41,19 +41,19 @@ module.exports.loop = function() {
     let creep = Game.creeps[name];
 
     // if creep is harvester, call harvester script
-    if (creep.memory.role == c.HARVESTER) {
+    if (creep.memory.role === c.HARVESTER) {
       roleHarvester.run(creep);
     }
     // if creep is upgrader, call upgrader script
-    else if (creep.memory.role == c.UPGRADER) {
+    else if (creep.memory.role === c.UPGRADER) {
       roleUpgrader.run(creep);
     }
     // if creep is builder, call builder script
-    else if (creep.memory.role == c.BUILDER) {
+    else if (creep.memory.role === c.BUILDER) {
       roleBuilder.run(creep);
-    } else if (creep.memory.role == c.REPAIRER) {
+    } else if (creep.memory.role === c.REPAIRER) {
       roleRepairer.run(creep);
-    } else if (creep.memory.role == c.WALL_REPAIRER) {
+    } else if (creep.memory.role === c.WALL_REPAIRER) {
       roleWallRepairer.run(creep);
     } else if (creep.name.startsWith('BB')) {
       roleBucket.run(creep);
@@ -69,25 +69,25 @@ module.exports.loop = function() {
   //  arrow function, which checks for the creep being a harvester
   let numberOfHarvesters = _.sum(
     Game.creeps,
-    crp => crp.memory.role == c.HARVESTER
+    crp => crp.memory.role === c.HARVESTER? 1 : 0
   );
   let numberOfUpgraders = _.sum(
     Game.creeps,
-    crp => crp.memory.role == c.UPGRADER
+    crp => crp.memory.role === c.UPGRADER? 1 : 0
   );
   let numberOfBuilders = _.sum(
     Game.creeps,
-    crp => crp.memory.role == c.BUILDER
+    crp => crp.memory.role === c.BUILDER? 1 : 0
   );
   let numberOfRepairers = _.sum(
     Game.creeps,
-    crp => crp.memory.role == c.REPAIRER
+    crp => crp.memory.role === c.REPAIRER? 1 : 0
   );
   let numberOfWallRepairers = _.sum(
     Game.creeps,
-    crp => crp.memory.role == c.WALL_REPAIRER
+    crp => crp.memory.role === c.WALL_REPAIRER? 1 : 0
   );
-  let numberOfBuckets = _.sum(Game.creeps, crp => crp.name.startsWith('BB'));
+  let numberOfBuckets = _.sum(Game.creeps, crp => crp.name.startsWith('BB')? 1 : 0);
 
   console.log(`Harvesters: ${numberOfHarvesters}`);
   console.log(`Upgraders: ${numberOfUpgraders}`);
@@ -97,7 +97,6 @@ module.exports.loop = function() {
   console.log(`Bucket Brigade: ${numberOfBuckets}`);
 
   // Loop through each spawn and spawn if necessary.
-  let name;
   for (let name in Game.spawns) {
     let spawn = Game.spawns[name];
     let energy = spawn.room.energyCapacityAvailable;
@@ -119,7 +118,7 @@ module.exports.loop = function() {
       // name = roleHarvester.build(spawn);
       name = spawn.createCreep(energy, c.HARVESTER);
 
-      if (name == ERR_NOT_ENOUGH_ENERGY && numberOfHarvesters == 0) {
+      if (name === ERR_NOT_ENOUGH_ENERGY && numberOfHarvesters === 0) {
         name = spawn.createCreep(spawn.room.energyAvailable, c.HARVESTER);
       }
     }
