@@ -143,7 +143,7 @@ module.exports.loop = function() {
       name = spawn.createCreep(energy, c.BUCKETIER);
     } else {
       // DEFAULT to Upgraders
-      name = spawn.createCreep(spawn.room.energyAvailable, c.UPGRADER);
+      name = spawn.createCreep(energy, c.UPGRADER);
     }
 
     // print name to console if spawning was a success
