@@ -89,12 +89,12 @@ module.exports.loop = function() {
   );
   let numberOfBuckets = _.sum(Game.creeps, crp => crp.name.startsWith('BB')? 1 : 0);
 
-  console.log(`Harvesters: ${numberOfHarvesters}`);
-  console.log(`Upgraders: ${numberOfUpgraders}`);
-  console.log(`Builders: ${numberOfBuilders}`);
-  console.log(`Repairers: ${numberOfRepairers}`);
-  console.log(`Wall Repairers: ${numberOfWallRepairers}`);
-  console.log(`Bucket Brigade: ${numberOfBuckets}`);
+  // console.log(`Harvesters: ${numberOfHarvesters}`);
+  // console.log(`Upgraders: ${numberOfUpgraders}`);
+  // console.log(`Builders: ${numberOfBuilders}`);
+  // console.log(`Repairers: ${numberOfRepairers}`);
+  // console.log(`Wall Repairers: ${numberOfWallRepairers}`);
+  // console.log(`Bucket Brigade: ${numberOfBuckets}`);
 
   // Loop through each spawn and spawn if necessary.
   for (let name in Game.spawns) {

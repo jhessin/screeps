@@ -45,7 +45,7 @@ module.exports = function() {
 		    body.push(MOVE);
 		  }
 
-		  if (role == c.BUCKETIER) {
+		  if (role === c.BUCKETIER) {
 		    for (i = 1; i < c.NUM_BUCKETS; i++) {
 		      if (!Game.creeps[`BB${i}`]) {
 		        this.spawnCreep(body, `BB${i}`, { working: false });
