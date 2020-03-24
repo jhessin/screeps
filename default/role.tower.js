@@ -11,7 +11,7 @@ module.exports = {
     if (target) {
       tower.attack(target);
     } else if (structure) {
-      tower.repair(structure);
+      // tower.repair(structure);
     }
   }
 };
