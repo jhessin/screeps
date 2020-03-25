@@ -2,6 +2,8 @@
 require('./prototype.creep')();
 require('./prototype.spawn')();
 
+const DEBUGGING = true;
+
 // Creep roles
 const roleBucket = require('./role.bucket');
 const roleHarvester = require('./role.harvester');
@@ -10,7 +12,6 @@ const roleBuilder = require('./role.builder');
 const roleRepairer = require('./role.repairer');
 const roleWallRepairer = require('./role.wallRepairer');
 
-const DEFAULT_ROLE = roleWallRepairer;
 
 // Structure roles
 const roleTower = require('./role.tower');
@@ -19,11 +20,14 @@ const roleTower = require('./role.tower');
 const c = require('./constants');
 
 // setup some minimum numbers for different roles
-const MIN_HARVESTERS = 1;
-const MIN_UPGRADERS = 4;
+const MIN_HARVESTERS = 2;
+const MIN_UPGRADERS = 2;
 const MIN_BUILDERS = 1;
 const MIN_REPAIRERS = 1;
 const MIN_WALL_REPAIRERS = 5;
+
+// Set the default role for extras
+const DEFAULT_ROLE = roleUpgrader;
 
 // The main entry point for the program
 module.exports.loop = function () {
@@ -46,6 +50,9 @@ module.exports.loop = function () {
   for (let name in Game.creeps) {
     // get the creep object
     let creep = Game.creeps[name];
+
+    // can't do anything with a spawning creep.
+    if (creep.spawning) continue;
 
     // if creep is harvester, call harvester script
     if (creep.memory.role === c.HARVESTER) {
@@ -92,15 +99,17 @@ module.exports.loop = function () {
     crp => crp.memory.role === c.WALL_REPAIRER
   );
   let numberOfWallRepairers = wallRepairers.length;
-  let buckets = _.filter(Game.creeps, crp => crp.name.startsWith('BB'));
-  let numberOfBuckets = buckets.length;
+  // let buckets = _.filter(Game.creeps, crp => crp.name.startsWith('BB'));
+  // let numberOfBuckets = buckets.length;
 
-  console.log(`${numberOfHarvesters} Harvesters: ${harvesters}`);
-  console.log(`${numberOfUpgraders} Upgraders: ${upgraders}`);
-  console.log(`${numberOfBuilders} Builders: ${builders}`);
-  console.log(`${numberOfRepairers} Repairers: ${repairers}`);
-  console.log(`${numberOfWallRepairers} Wall Repairers: ${wallRepairers}`);
-  console.log(`${numberOfBuckets} Bucket Brigade: ${buckets}`);
+  if (DEBUGGING) {
+    console.log(`${numberOfHarvesters} of ${MIN_HARVESTERS} Harvesters: ${harvesters}`);
+    console.log(`${numberOfUpgraders} of ${MIN_UPGRADERS} Upgraders: ${upgraders}`);
+    console.log(`${numberOfRepairers} of ${MIN_REPAIRERS} Repairers: ${repairers}`);
+    console.log(`${numberOfBuilders} of ${MIN_BUILDERS} Builders: ${builders}`);
+    console.log(`${numberOfWallRepairers} of ${MIN_WALL_REPAIRERS} Wall Repairers: ${wallRepairers}`);
+    // console.log(`${numberOfBuckets} of ${c.NUM_BUCKETS} Bucket Brigade: ${buckets}`);
+  }
 
   // Loop through each spawn and spawn if necessary.
   for (let spawnName in Game.spawns) {
