@@ -47,16 +47,27 @@ module.exports = function () {
 
       if (role === c.BUCKETIER) {
         for (i = 1; i < c.NUM_BUCKETS; i++) {
-          if (!Game.creeps[`BB${i}`]) {
-            this.spawnCreep(body, `BB${i}`, {working: false});
-          }
-        }
-      } else {
-        for (let name of NAMES) {
-          let r = this.spawnCreep(body, name, {role, working: false});
+          let r = this.spawnCreep(body, `BB${i}`, {working: false});
           if (r === ERR_NAME_EXISTS) continue;
           return r;
         }
+      } else {
+        for (let name of NAMES) {
+          if (!Game.creeps[name]) {
+            return this.spawnCreep(body, name, {
+              memory: {
+                working: false,
+                role
+              }
+            });
+          }
+        }
+        return this.spawnCreep(body, Game.time, {
+          memory: {
+            working: false,
+            role
+          }
+        });
       }
     };
 };

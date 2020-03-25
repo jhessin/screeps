@@ -5,7 +5,7 @@ module.exports = function() {
     Creep.prototype.moveTo = function(target) {
       this._moveTo(target, {
         visualizePathStyle: {
-          stroke: '#ffffff',
+          stroke: '#6664ff',
           strokeWidth: 0.2,
           opacity: 0.3,
           lineStyle: 'dashed',

@@ -1,76 +1,125 @@
 const c = require('./constants');
+const roleHarvester = require('./role.harvester');
 
 module.exports = {
-  // a function to run the logic for this role
-  run: function(creep) {
-    let name = creep.name;
-
-    // if creep is bringing energy to the spawn or an extension but has no energy left
-    if (creep.memory.working === true && creep.carry.energy === 0) {
+  setFlag: function (creep) {
+    // if creep is working but has no energy left
+    if (creep.memory.working && creep.carry.energy === 0) {
       // switch state
       creep.memory.working = false;
     }
     // if creep is harvesting energy but is full
     else if (
-      creep.memory.working === false &&
+      !creep.memory.working
+      &&
       creep.carry.energy === creep.carryCapacity
     ) {
       // switch state
       creep.memory.working = true;
     }
+  },
+  // a function to run the logic for this role
+  front: function () {
+    for (let i = 1; i <= c.NUM_BUCKETS; i++) {
+      let creep = Game.creeps[`BB${i}`];
 
-    // if creep is supposed to transfer energy to the spawn or an extension
-    if (creep.memory.working === true && name === `BB${c.NUM_BUCKETS}`) {
-      // find closest spawn or extension which is not full
-      let structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-        // the second argument for findClosestByPath is an object which takes
-        // a property called filter which can be a function
-        // we use the arrow operator to define it
-        filter: s => s.energyCapacity > 0 && s.energy < s.energyCapacity
-      });
+      if (!creep) continue;
 
-      // if we found one
-      if (!structure) {
-        // try to transfer energy, if it is not in range
-        if (creep.transfer(structure, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          // move towards it
-          creep.moveTo(structure);
-        }
-      }
-    } else if (creep.memory.working) {
-      for (let i = 1; i < c.NUM_BUCKETS; i++) {
-        if (name === `BB${i}`) {
-          let target = Game.creeps[`BB${i + 1}`];
-          if (
-            target &&
-            creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE
-          ) {
-            creep.moveTo(target);
-          } else if (!target) {
-            target = Game.flags[`BB${i + 1}`];
-            creep.moveTo(target);
-          }
-        }
-      }
-    }
-    // if creep is supposed to harvest energy from source
-    else {
-      if (name === 'BB1') {
-        let source = Game.flags.BB1.findClosestByPath(FIND_SOURCES);
-        if (creep.harvest(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(source);
-        }
-      } else
+      this.frontIndex = i;
+      this.setFlag(creep);
+
+      if (creep.memory.working) {
         for (let i = 2; i <= c.NUM_BUCKETS; i++) {
-          if (name === `BB${i}`) {
-            let target = Game.creeps[`BB${i - 1}`];
-            if (target) {
+          let target = Game.creeps[`BB${i}`];
+          if (target) {
+            if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
               creep.moveTo(target);
-            } else {
-              creep.moveTo(Game.flags[`BB${i - 1}`]);
             }
+            return true;
           }
         }
+        roleHarvester.run(creep);
+      } else {
+        let target = Game.flags.BB1.pos.findClosestByRange(FIND_SOURCES);
+
+        if (!target) {
+          creep.moveTo(Game.flags.BB1);
+          return false;
+        }
+
+        //gather energy
+        if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(target);
+        }
+      }
     }
   },
+  middle: function () {
+    // First get all the creeps that exist.
+    let creeps = [];
+    for (let i = this.frontIndex + 1; i < this.backIndex; i++) {
+      let creep = Game.creeps[`BB${i}`];
+      if (creep) creeps.push(creep);
+    }
+    // Now iterate through them.
+    for (let i = 0; i < creeps.length; i++) {
+      // Get the creep
+      let creep = creeps[i];
+      this.setFlag(creep);
+
+      if (creep.memory.working) {
+        // going from lower to higher
+
+        let target;
+        // if we are at the limit go to the back
+        if (i === creeps.length - 1) {
+          target = Game.creeps[`BB${this.backIndex}`];
+        } else {
+          target = creeps[i + 1];
+        }
+
+        if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(target);
+        }
+      } else {
+        // going from higher to lower
+
+        let target;
+        // if we are at the beginning go to frontCreep
+        if (i === 0) {
+          target = Game.creeps[`BB${this.frontIndex}`];
+        } else {
+          target = creeps[i - 1];
+        }
+
+        if (target.transfer(creep, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(target);
+        }
+      }
+    }
+  },
+  back: function () {
+    for (let i = c.NUM_BUCKETS; i > this.frontIndex; i--) {
+      let creep = Game.creeps[`BB${i}`];
+
+      if (!creep) continue;
+      this.backIndex = i;
+      this.setFlag(creep);
+
+      if (creep.memory.working) {
+        roleHarvester.run(creep);
+      } else {
+        for (let j = i; j > 1; j--) {
+          let target = Game.creeps[`BB${j}`];
+
+          if (!target) continue;
+
+          if (target.transfer(creep, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(target);
+            return true;
+          }
+        }
+      }
+    }
+  }
 };

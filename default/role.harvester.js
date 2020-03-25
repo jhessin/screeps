@@ -2,15 +2,16 @@
 
 module.exports = {
   // a function to run the logic for this role
-  run: function(creep) {
+  run: function (creep) {
     // if creep is bringing energy to the spawn or an extension but has no energy left
-    if (creep.memory.working === true && creep.carry.energy === 0) {
+    if (creep.memory.working && creep.carry.energy === 0) {
       // switch state
       creep.memory.working = false;
     }
     // if creep is harvesting energy but is full
     else if (
-      creep.memory.working === false &&
+      !creep.memory.working
+      &&
       creep.carry.energy === creep.carryCapacity
     ) {
       // switch state
@@ -18,20 +19,24 @@ module.exports = {
     }
 
     // if creep is supposed to transfer energy to the spawn or an extension
-    if (creep.memory.working === true) {
+    if (creep.memory.working) {
+      // creep.say('delivering');
       // find closest spawn or extension which is not full
+      // console.log('delivering');
       let structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
         // the second argument for findClosestByPath is an object which takes
         // a property called filter which can be a function
         // we use the arrow operator to define it
-        filter: s => s.energyCapacity > 0 && s.energy < s.energyCapacity
+        filter: s => s.energy < s.energyCapacity
       });
+      // console.log(`found structure: ${structure}`);
 
       // if we found one
-      if (!structure) {
+      if (structure) {
         // try to transfer energy, if it is not in range
         if (creep.transfer(structure, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           // move towards it
+          // console.log('Moving toward structure');
           creep.moveTo(structure);
         }
       }
@@ -41,8 +46,9 @@ module.exports = {
       this.harvest(creep);
     }
   },
-  harvest: function(creep) {
+  harvest: function (creep) {
     // find closest source
+    // creep.say('harvesting');
     let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
     let tombstone = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
       filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0
