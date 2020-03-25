@@ -10,6 +10,8 @@ const roleBuilder = require('./role.builder');
 const roleRepairer = require('./role.repairer');
 const roleWallRepairer = require('./role.wallRepairer');
 
+const DEFAULT_ROLE = roleWallRepairer;
+
 // Structure roles
 const roleTower = require('./role.tower');
 
@@ -61,10 +63,7 @@ module.exports.loop = function () {
     } else if (creep.memory.role === c.WALL_REPAIRER) {
       roleWallRepairer.run(creep);
     } else {
-      // default to harvester just in case
-      // creep.memory.role = c.REPAIRER;
-      // roleHarvester.run(creep);
-      roleUpgrader.run(creep);
+      DEFAULT_ROLE.run(creep);
     }
   }
 
@@ -136,10 +135,6 @@ module.exports.loop = function () {
     } else if (numberOfWallRepairers < MIN_WALL_REPAIRERS) {
       name = spawn.spawnCustom(energy, c.WALL_REPAIRER);
     }
-      // else if (numberOfBuckets < c.NUM_BUCKETS) {
-      //   name = spawn.spawnCustom(energy, c.BUCKETIER);
-      // }
-    // DEFAULT to Upgraders
     else {
       name = spawn.spawnCustom(energy, c.UPGRADER);
     }
