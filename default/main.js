@@ -2,7 +2,7 @@
 require('./prototype.creep')();
 require('./prototype.spawn')();
 
-const DEBUGGING = true;
+const DEBUGGING = false;
 
 // Creep roles
 const roleBucket = require('./role.bucket');
@@ -20,18 +20,17 @@ const roleTower = require('./role.tower');
 const c = require('./constants');
 
 // setup some minimum numbers for different roles
-const MIN_HARVESTERS = 2;
-const MIN_UPGRADERS = 2;
+const MIN_HARVESTERS = 4;
+const MIN_UPGRADERS = 1;
 const MIN_BUILDERS = 1;
-const MIN_REPAIRERS = 1;
-const MIN_WALL_REPAIRERS = 5;
+const MIN_REPAIRERS = 2;
+const MIN_WALL_REPAIRERS = 0;
 
 // Set the default role for extras
-const DEFAULT_ROLE = roleUpgrader;
+const DEFAULT_ROLE = roleRepairer;
 
 // The main entry point for the program
 module.exports.loop = function () {
-  console.log('----------------------');
   // check for memory entries of died creeps by iterating over Memory.creeps
   for (let name in Memory.creeps) {
     // and checking if the creep is still alive
@@ -102,20 +101,11 @@ module.exports.loop = function () {
   // let buckets = _.filter(Game.creeps, crp => crp.name.startsWith('BB'));
   // let numberOfBuckets = buckets.length;
 
-  if (DEBUGGING) {
-    console.log(`${numberOfHarvesters} of ${MIN_HARVESTERS} Harvesters: ${harvesters}`);
-    console.log(`${numberOfUpgraders} of ${MIN_UPGRADERS} Upgraders: ${upgraders}`);
-    console.log(`${numberOfRepairers} of ${MIN_REPAIRERS} Repairers: ${repairers}`);
-    console.log(`${numberOfBuilders} of ${MIN_BUILDERS} Builders: ${builders}`);
-    console.log(`${numberOfWallRepairers} of ${MIN_WALL_REPAIRERS} Wall Repairers: ${wallRepairers}`);
-    // console.log(`${numberOfBuckets} of ${c.NUM_BUCKETS} Bucket Brigade: ${buckets}`);
-  }
-
   // Loop through each spawn and spawn if necessary.
   for (let spawnName in Game.spawns) {
     let spawn = Game.spawns[spawnName];
     let energy = spawn.room.energyCapacityAvailable;
-    let name;
+    let result;
     // STRUCTURE ROLES
     let towers = spawn.room.find(FIND_STRUCTURES, {
       filter: {
@@ -130,29 +120,32 @@ module.exports.loop = function () {
     // Spawn all of our creeps
     // Harvesters
     if (numberOfHarvesters < MIN_HARVESTERS) {
-      name = spawn.spawnCustom(energy, c.HARVESTER);
+      result = spawn.spawnCustom(energy, c.HARVESTER);
 
-      if (name === ERR_NOT_ENOUGH_ENERGY && numberOfHarvesters === 0) {
-        name = spawn.spawnCustom(spawn.room.energyAvailable, c.HARVESTER);
+      if (result === ERR_NOT_ENOUGH_ENERGY && numberOfHarvesters === 0) {
+        result = spawn.spawnCustom(spawn.room.energyAvailable, c.HARVESTER);
       }
     } else if (numberOfUpgraders < MIN_UPGRADERS) {
-      name = spawn.spawnCustom(energy, c.UPGRADER);
+      result = spawn.spawnCustom(energy, c.UPGRADER);
     } else if (numberOfRepairers < MIN_REPAIRERS) {
-      name = spawn.spawnCustom(energy, c.REPAIRER);
+      result = spawn.spawnCustom(energy, c.REPAIRER);
     } else if (numberOfBuilders < MIN_BUILDERS) {
-      name = spawn.spawnCustom(energy, c.BUILDER);
+      result = spawn.spawnCustom(energy, c.BUILDER);
     } else if (numberOfWallRepairers < MIN_WALL_REPAIRERS) {
-      name = spawn.spawnCustom(energy, c.WALL_REPAIRER);
-    }
-    else {
-      name = spawn.spawnCustom(energy, c.UPGRADER);
+      result = spawn.spawnCustom(energy, c.WALL_REPAIRER);
+    } else {
+      result = spawn.spawnCustom(energy, c.UPGRADER);
     }
 
     // print name to console if spawning was a success
     // name > 0 would not work since string > 0 returns false
-    if (typeof name === 'string') {
-      let creep = Game.creeps[name];
-      console.log('Spawned new ' + creep.memory.role + ' creep: ' + name);
+    if (result === OK || DEBUGGING) {
+      console.log('----------------------');
+      console.log(`${numberOfHarvesters} of ${MIN_HARVESTERS} Harvesters: ${harvesters}`);
+      console.log(`${numberOfUpgraders} of ${MIN_UPGRADERS} Upgraders: ${upgraders}`);
+      console.log(`${numberOfRepairers} of ${MIN_REPAIRERS} Repairers: ${repairers}`);
+      console.log(`${numberOfBuilders} of ${MIN_BUILDERS} Builders: ${builders}`);
+      console.log(`${numberOfWallRepairers} of ${MIN_WALL_REPAIRERS} Wall Repairers: ${wallRepairers}`);
     }
   }
 };

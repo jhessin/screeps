@@ -30,19 +30,24 @@ const NAMES = [
 ];
 module.exports = function () {
   StructureSpawn.prototype.spawnCustom =
-    function (energy, role) {
+    function (
+      energy,
+      role,
+      partsToUse = [
+        ATTACK,
+        WORK,
+        CARRY,
+        MOVE,
+      ]) {
+      const costOfParts = _.sum(partsToUse, (p) => BODYPART_COST[p]);
       let i;
-      let numberOfParts = Math.floor(energy / 200);
+      let numberOfParts = Math.floor(energy / costOfParts);
       let body = [];
 
-      for (i = 0; i < numberOfParts; i++) {
-        body.push(WORK);
-      }
-      for (i = 0; i < numberOfParts; i++) {
-        body.push(CARRY);
-      }
-      for (i = 0; i < numberOfParts; i++) {
-        body.push(MOVE);
+      for (let part of partsToUse) {
+        for (i = 0; i < numberOfParts; i++) {
+          body.push(part);
+        }
       }
 
       if (role === c.BUCKETIER) {

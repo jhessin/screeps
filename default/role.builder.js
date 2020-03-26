@@ -23,7 +23,7 @@ module.exports = {
       // creep.say('building');
       let constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
       // if one is found
-      if (!constructionSite) {
+      if (constructionSite) {
         // try to build, if the constructionSite is not in range
         if (creep.build(constructionSite) === ERR_NOT_IN_RANGE) {
           // move towards the constructionSite
