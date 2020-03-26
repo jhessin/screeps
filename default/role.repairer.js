@@ -59,7 +59,7 @@ module.exports = {
     // noinspection JSIncompatibleTypesComparison
     // creep.say('repair/building');
     let structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: s => s.hits < s.hitsMax && s.structureType !== StructureWall
+      filter: s => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
     });
     let constSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
 

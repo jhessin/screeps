@@ -11,6 +11,7 @@ const roleUpgrader = require('./role.upgrader');
 const roleBuilder = require('./role.builder');
 const roleRepairer = require('./role.repairer');
 const roleWallRepairer = require('./role.wallRepairer');
+const roleMiner = require('./role.miner');
 
 
 // Structure roles
@@ -20,15 +21,15 @@ const roleTower = require('./role.tower');
 const c = require('./constants');
 
 // setup some minimum numbers for different roles
-const MIN_HARVESTERS = 4;
+const MIN_HARVESTERS = 7;
 const MIN_UPGRADERS = 1;
 const MIN_BUILDERS = 1;
 const MIN_REPAIRERS = 2;
-const MIN_WALL_REPAIRERS = 0;
+const MIN_WALL_REPAIRERS = 1;
 
 // Set the default role for extras
-const DEFAULT_ROLE_NAME = c.REPAIRER;
-const DEFAULT_ROLE = roleRepairer;
+const DEFAULT_FOR_NEW_CREEPS = c.BUILDER;
+const DEFAULT_FOR_UNASSIGNED = roleBuilder;
 
 // The main entry point for the program
 module.exports.loop = function () {
@@ -40,6 +41,16 @@ module.exports.loop = function () {
       delete Memory.creeps[name];
     }
   }
+
+  // Clear Flag memory of dead creeps.
+  // TODO: find lodash function for this.
+  for (let flagName in Memory.flags) {
+    let creepName = Memory.flags[flagName].creepName;
+    if (creepName && !Game.creeps[creepName]) {
+      delete Memory.flags[flagName].creepName;
+    }
+  }
+
 
   // run bucket creeps
   roleBucket.front();
@@ -69,8 +80,10 @@ module.exports.loop = function () {
       roleRepairer.run(creep);
     } else if (creep.memory.role === c.WALL_REPAIRER) {
       roleWallRepairer.run(creep);
+    } else if (creep.memory.role === c.MINER) {
+      roleMiner.run(creep);
     } else {
-      DEFAULT_ROLE.run(creep);
+      DEFAULT_FOR_UNASSIGNED.run(creep);
     }
   }
 
@@ -102,23 +115,30 @@ module.exports.loop = function () {
   // let buckets = _.filter(Game.creeps, crp => crp.name.startsWith('BB'));
   // let numberOfBuckets = buckets.length;
 
+  // STRUCTURE ROLES
+  let towers = _.filter(Game.structures, s => s.structureType === STRUCTURE_TOWER);
+
+  for (let tower of towers) {
+    roleTower.run(tower);
+  }
+
   // Loop through each spawn and spawn if necessary.
   for (let spawnName in Game.spawns) {
     let spawn = Game.spawns[spawnName];
     let energy = spawn.room.energyCapacityAvailable;
     let result;
-    // STRUCTURE ROLES
-    let towers = spawn.room.find(FIND_STRUCTURES, {
-      filter: {
-        structureType: STRUCTURE_TOWER
-      }
-    });
-
-    for (let tower of towers) {
-      roleTower.run(tower);
-    }
 
     // Spawn all of our creeps
+    // Start with miners.
+    let flags = spawn.room.find(FIND_FLAGS, {
+      filter: f => f.name.startsWith('miner')
+    });
+    for (let flag of flags) {
+      if (!flag.memory || !flag.memory.creepName) {
+        result = spawn.spawnMiner(flag);
+      }
+    }
+
     // Harvesters
     if (numberOfHarvesters < MIN_HARVESTERS) {
       result = spawn.spawnCustom(energy, c.HARVESTER);
@@ -135,7 +155,9 @@ module.exports.loop = function () {
     } else if (numberOfWallRepairers < MIN_WALL_REPAIRERS) {
       result = spawn.spawnCustom(energy, c.WALL_REPAIRER);
     } else {
-      result = spawn.spawnCustom(energy, DEFAULT_ROLE_NAME);
+
+      // result = spawn.spawnCustom(energy, DEFAULT_FOR_NEW_CREEPS);
+      result = OK;
     }
 
     // print name to console if spawning was a success

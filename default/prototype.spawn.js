@@ -34,7 +34,7 @@ module.exports = function () {
       energy,
       role,
       partsToUse = [
-        ATTACK,
+        // ATTACK,
         WORK,
         CARRY,
         MOVE,
@@ -74,5 +74,30 @@ module.exports = function () {
           }
         });
       }
+    };
+
+  StructureSpawn.prototype.spawnMiner =
+    function (
+      flag
+    ) {
+      let sourceId = flag.pos.findInRange(FIND_SOURCES, 1)[0].id;
+      let containerId = flag.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: s => s.structureType === STRUCTURE_CONTAINER
+      });
+
+      let creepName = `Miner${sourceId}`;
+      let r = this.spawnCreep([WORK, WORK, WORK, WORK, WORK, MOVE], creepName, {
+        memory: {
+          sourceId,
+          containerId,
+          role: c.MINER,
+        }
+      });
+
+      if (r === OK) {
+        flag.memory.creepName = creepName;
+      }
+
+      return r;
     };
 };

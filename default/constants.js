@@ -5,5 +5,6 @@ module.exports = {
   REPAIRER: 'repairer',
   WALL_REPAIRER: 'wall-repairer',
   NUM_BUCKETS: 7,
-  BUCKETIER: 'bucketier'
+  BUCKETIER: 'bucketier',
+  MINER: 'miner'
 };
