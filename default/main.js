@@ -27,6 +27,7 @@ const MIN_REPAIRERS = 2;
 const MIN_WALL_REPAIRERS = 0;
 
 // Set the default role for extras
+const DEFAULT_ROLE_NAME = c.REPAIRER;
 const DEFAULT_ROLE = roleRepairer;
 
 // The main entry point for the program
@@ -134,7 +135,7 @@ module.exports.loop = function () {
     } else if (numberOfWallRepairers < MIN_WALL_REPAIRERS) {
       result = spawn.spawnCustom(energy, c.WALL_REPAIRER);
     } else {
-      result = spawn.spawnCustom(energy, c.UPGRADER);
+      result = spawn.spawnCustom(energy, DEFAULT_ROLE_NAME);
     }
 
     // print name to console if spawning was a success
