@@ -1,5 +1,6 @@
 // const c = require('./constants');
 
+// TODO: Make a separate lorry role using [CARRY,CARRY,MOVE]
 module.exports = {
   // a function to run the logic for this role
   run: function (creep) {
