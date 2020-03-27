@@ -28,17 +28,35 @@ const NAMES = [
   'Nehemiah',
   'Simian',
 ];
+
+const DEFAULT_PARTS = [
+  WORK,
+  CARRY,
+  MOVE
+];
+
+function getAvailableName() {
+  for (let name of NAMES) {
+    if (!Game.creeps[name]) {
+      return name;
+    }
+  }
+}
+
 module.exports = function () {
+  const minerBody = [
+    WORK, WORK, WORK, WORK, WORK, MOVE,
+  ];
+  let minerCost = _.sum(minerBody, p => BODYPART_COST[p]);
+
+  Room.prototype.canMine = function () {
+    return this.energyAvailable > minerCost;
+  };
   StructureSpawn.prototype.spawnCustom =
     function (
       energy,
       role,
-      partsToUse = [
-        ATTACK,
-        WORK,
-        CARRY,
-        MOVE,
-      ]) {
+      partsToUse = DEFAULT_PARTS) {
       const costOfParts = _.sum(partsToUse, (p) => BODYPART_COST[p]);
       let i;
       let numberOfParts = Math.floor(energy / costOfParts);
@@ -49,30 +67,30 @@ module.exports = function () {
           body.push(part);
         }
       }
+      let name = getAvailableName();
 
-      if (role === c.BUCKETIER) {
-        for (i = 1; i < c.NUM_BUCKETS; i++) {
-          let r = this.spawnCreep(body, `BB${i}`, {working: false});
-          if (r === ERR_NAME_EXISTS) continue;
-          return r;
+      return this.spawnCreep(body, name, {
+        memory: {
+          working: false,
+          role
         }
-      } else {
-        for (let name of NAMES) {
-          if (!Game.creeps[name]) {
-            return this.spawnCreep(body, name, {
-              memory: {
-                working: false,
-                role
-              }
-            });
-          }
+      });
+    };
+
+  StructureSpawn.prototype.spawnMiner =
+    function (
+      source, container
+    ) {
+      let sourceId = source.id;
+      let containerId = container.id;
+
+      let creepName = getAvailableName();
+      return this.spawnCreep(minerBody, creepName, {
+        memory: {
+          sourceId,
+          containerId,
+          role: c.MINER,
         }
-        return this.spawnCreep(body, Game.time, {
-          memory: {
-            working: false,
-            role
-          }
-        });
-      }
+      });
     };
 };
