@@ -50,9 +50,6 @@ module.exports = {
     // find closest source
     // creep.say('harvesting');
     let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-    let structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0
-    });
     let tombstone = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
       filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0
     });
@@ -65,9 +62,6 @@ module.exports = {
     let options = [];
     if (source) {
       options.push(source);
-    }
-    if (structure) {
-      options.push(structure);
     }
     if (tombstone) {
       options.push(tombstone);
@@ -85,34 +79,13 @@ module.exports = {
     if (closest === dropped && creep.pickup(dropped) === ERR_NOT_IN_RANGE) {
       creep.moveTo(dropped);
     } else if (
-      (closest === tombstone || closest === ruin || closest === structure) &&
+      (closest === tombstone || closest === ruin) &&
       creep.withdraw(closest, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE
     ) {
       creep.moveTo(closest);
-      // } else if (closest === source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
-      //   creep.moveTo(source);
-    } else if (!closest) {
-      // this.harvestFromSource(creep);
-      if (creep.room.canMine()) {
-        creep.moveTo(creep.room.controller);
-      } else {
-        this.harvestFromSource(creep);
-      }
+    } else if (closest === source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
+      // move towards the source
+      creep.moveTo(source);
     }
-  },
-  harvestFromSource: function (creep) {
-    // find closest source
-    // creep.say('harvesting');
-    let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-
-    // try to harvest energy, if the source is not in range
-    if (source) {
-      let r = creep.harvest(source);
-      if (r === ERR_NOT_IN_RANGE) {
-        creep.moveTo(source);
-      }
-    } else {
-      creep.memory.working = true;
-    }
-  },
+  }
 };
