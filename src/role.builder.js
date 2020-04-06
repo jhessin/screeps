@@ -1,5 +1,5 @@
-const roleUpgrader = require('role.upgrader');
-const roleHarvester = require('role.harvester');
+const roleUpgrader = require('./role.upgrader');
+const roleHarvester = require('./role.harvester');
 // const c = require('./constants');
 
 module.exports = {

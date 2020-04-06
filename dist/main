@@ -1,0 +1,939 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports) {
+
+// const c = require('./constants');
+
+// TODO: Make a separate lorry role using [CARRY,CARRY,MOVE]
+module.exports = {
+  // a function to run the logic for this role
+  run: function (creep) {
+    // if creep is bringing energy to the spawn or an extension but has no energy left
+    if (creep.memory.working && creep.carry.energy === 0) {
+      // switch state
+      creep.memory.working = false;
+    }
+    // if creep is harvesting energy but is full
+    else if (
+      !creep.memory.working
+      &&
+      creep.carry.energy === creep.carryCapacity
+    ) {
+      // switch state
+      creep.memory.working = true;
+    }
+
+    // if creep is supposed to transfer energy to the spawn or an extension
+    if (creep.memory.working) {
+      // creep.say('delivering');
+      // find closest spawn or extension which is not full
+      // console.log('delivering');
+      let structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+        // the second argument for findClosestByPath is an object which takes
+        // a property called filter which can be a function
+        // we use the arrow operator to define it
+        filter: s => s.energy < s.energyCapacity
+      });
+      // console.log(`found structure: ${structure}`);
+
+      // if we found one
+      if (structure) {
+        // try to transfer energy, if it is not in range
+        if (creep.transfer(structure, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          // move towards it
+          // console.log('Moving toward structure');
+          creep.moveTo(structure);
+        }
+      }
+    }
+    // if creep is supposed to harvest energy from source
+    else {
+      this.harvest(creep);
+    }
+  },
+  harvest: function (creep) {
+    // find closest source
+    // creep.say('harvesting');
+    let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    let structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0
+    });
+    let tombstone = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
+      filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+    });
+    let ruin = creep.pos.findClosestByPath(FIND_RUINS, {
+      filter: r => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+    });
+    let dropped = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
+
+    // let closest = creep.pos.findClosestByPath([source, tombstone, dropped]);
+    let options = [];
+    if (source) {
+      options.push(source);
+    }
+    if (structure) {
+      options.push(structure);
+    }
+    if (tombstone) {
+      options.push(tombstone);
+    }
+    if (dropped) {
+      options.push(dropped);
+    }
+    if (ruin) {
+      options.push(ruin);
+    }
+
+    let closest = creep.pos.findClosestByPath(options);
+
+    // try to harvest energy, if the source is not in range
+    if (closest === dropped && creep.pickup(dropped) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(dropped);
+    } else if (
+      (closest === tombstone || closest === ruin || closest === structure) &&
+      creep.withdraw(closest, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE
+    ) {
+      creep.moveTo(closest);
+      // } else if (closest === source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
+      //   creep.moveTo(source);
+    } else if (!closest) {
+      // this.harvestFromSource(creep);
+      if (creep.room.canMine()) {
+        creep.moveTo(creep.room.controller);
+      } else {
+        this.harvestFromSource(creep);
+      }
+    }
+  },
+  harvestFromSource: function (creep) {
+    // find closest source
+    // creep.say('harvesting');
+    let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+
+    // try to harvest energy, if the source is not in range
+    if (source) {
+      let r = creep.harvest(source);
+      if (r === ERR_NOT_IN_RANGE) {
+        creep.moveTo(source);
+      }
+    } else {
+      creep.memory.working = true;
+    }
+  },
+};
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+module.exports = {
+  UPGRADER: 'upgrader',
+  BUILDER: 'builder',
+  HARVESTER: 'harvester',
+  REPAIRER: 'repairer',
+  WALL_REPAIRER: 'wall-repairer',
+  NUM_BUCKETS: 7,
+  BUCKETIER: 'bucketier',
+  MINER: 'miner'
+};
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const roleUpgrader = __webpack_require__(3);
+const roleHarvester = __webpack_require__(0);
+// const c = require('./constants');
+
+module.exports = {
+  // a function to run the logic for this role
+  run: function (creep) {
+    // if creep is trying to complete a constructionSite but has no energy left
+
+    if (creep.memory.working && creep.carry.energy === 0) {
+      // switch state
+      creep.memory.working = false;
+    }
+    // if creep is harvesting energy but is full
+    else if (!creep.memory.working && creep.carry.energy === creep.carryCapacity) {
+      // switch state
+      creep.memory.working = true;
+    }
+
+    // if creep is supposed to complete a constructionSite
+    if (creep.memory.working) {
+      // find closest constructionSite
+      // creep.say('building');
+      let constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+      // if one is found
+      if (constructionSite) {
+        // try to build, if the constructionSite is not in range
+        if (creep.build(constructionSite) === ERR_NOT_IN_RANGE) {
+          // move towards the constructionSite
+          creep.moveTo(constructionSite);
+        }
+      }
+      // if no constructionSite is found
+      else {
+        // go upgrading the controller
+        roleUpgrader.run(creep);
+      }
+    }
+    // if creep is supposed to harvest energy from source
+    else {
+      roleHarvester.harvest(creep);
+    }
+  },
+};
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const roleHarvester = __webpack_require__(0);
+// const c = require('./constants');
+
+module.exports = {
+  // a function to run the logic for this role
+  run: function (creep) {
+    // if creep is bringing energy to the controller but has no energy left
+    if (creep.memory.working && creep.carry.energy === 0) {
+      // switch state
+      creep.memory.working = false;
+    }
+    // if creep is harvesting energy but is full
+    else if (!creep.memory.working && creep.carry.energy === creep.carryCapacity) {
+      // switch state
+      creep.memory.working = true;
+    }
+
+    // if creep is supposed to transfer energy to the controller
+    if (creep.memory.working) {
+      // creep.say('upgrading!');
+      // instead of upgraderController we could also use:
+      // if (creep.transfer(creep.room.controller, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+
+      // try to upgrade the controller
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+        // if not in range, move towards the controller
+        creep.moveTo(creep.room.controller);
+      }
+    }
+    // if creep is supposed to harvest energy from source
+    else {
+      roleHarvester.harvest(creep);
+    }
+  },
+};
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// import modules
+__webpack_require__(5)();
+__webpack_require__(6)();
+
+const DEBUGGING = false;
+
+// Creep roles
+const roleBucket = __webpack_require__(7);
+const roleHarvester = __webpack_require__(0);
+const roleUpgrader = __webpack_require__(3);
+const roleBuilder = __webpack_require__(2);
+const roleRepairer = __webpack_require__(8);
+const roleWallRepairer = __webpack_require__(9);
+const roleMiner = __webpack_require__(10);
+
+// Structure roles
+const roleTower = __webpack_require__(11);
+
+// Constants
+const c = __webpack_require__(1);
+
+// setup some minimum numbers for different roles
+const MIN_HARVESTERS = 2;
+const MIN_UPGRADERS = 1;
+const MIN_BUILDERS = 1;
+const MIN_REPAIRERS = 2;
+const MIN_WALL_REPAIRERS = 1;
+
+// Set the default role for extras
+const DEFAULT_ROLE_NAME = c.REPAIRER;
+const DEFAULT_ROLE = roleRepairer;
+
+// The main entry point for the program
+module.exports.loop = function () {
+  // check for memory entries of died creeps by iterating over Memory.creeps
+  for (let name in Memory.creeps) {
+    // and checking if the creep is still alive
+    if (!Game.creeps[name]) {
+      // if not, delete the memory entry
+      delete Memory.creeps[name];
+    }
+  }
+
+  // run bucket creeps
+  roleBucket.front();
+  roleBucket.back();
+  roleBucket.middle();
+
+  // Loop through each spawn and spawn if necessary.
+  for (let spawnName in Game.spawns) {
+    let spawn = Game.spawns[spawnName];
+    let energy = spawn.room.energyCapacityAvailable;
+    // Loop through all the creeps and assign roles
+    let creepsInRoom = spawn.room.find(FIND_MY_CREEPS);
+    for (let creep of creepsInRoom) {
+      // can't do anything with a spawning creep.
+      if (creep.spawning) continue;
+
+      // if creep is harvester, call harvester script
+      if (creep.memory.role === c.MINER) {
+        roleMiner.run(creep);
+      } else if (creep.memory.role === c.HARVESTER) {
+        roleHarvester.run(creep);
+      }
+      // if creep is upgrader, call upgrader script
+      else if (creep.memory.role === c.UPGRADER) {
+        roleUpgrader.run(creep);
+      }
+      // if creep is builder, call builder script
+      else if (creep.memory.role === c.BUILDER) {
+        roleBuilder.run(creep);
+      } else if (creep.memory.role === c.REPAIRER) {
+        roleRepairer.run(creep);
+      } else if (creep.memory.role === c.WALL_REPAIRER) {
+        roleWallRepairer.run(creep);
+      } else {
+        DEFAULT_ROLE.run(creep);
+      }
+    }
+
+    // count the number of creeps alive for each role
+    // _.sum will count the number of properties in Game.creeps filtered by the
+    //  arrow function, which checks for the creep being a harvester
+    let harvesters = _.filter(Game.creeps, crp => crp.memory.role === c.HARVESTER);
+    let numHarvesters = harvesters.length;
+    let upgraders = _.filter(
+      Game.creeps,
+      crp => crp.memory.role === c.UPGRADER
+    );
+    let numUpgraders = upgraders.length;
+    let builders = _.filter(
+      Game.creeps,
+      crp => crp.memory.role === c.BUILDER
+    );
+    let numBuilders = builders.length;
+    let repairers = _.filter(
+      Game.creeps,
+      crp => crp.memory.role === c.REPAIRER
+    );
+    let numRepairers = repairers.length;
+    let wallRepairers = _.filter(
+      Game.creeps,
+      crp => crp.memory.role === c.WALL_REPAIRER
+    );
+    let numWallRepairers = wallRepairers.length;
+    let miners = _.filter(creepsInRoom, crp => crp.memory.role === c.MINER);
+    let numMiners = miners.length;
+    // let buckets = _.filter(Game.creeps, crp => crp.name.startsWith('BB'));
+    // let numberOfBuckets = buckets.length;
+
+    let result;
+    // STRUCTURE ROLES
+    let towers = spawn.room.find(FIND_STRUCTURES, {
+      filter: {
+        structureType: STRUCTURE_TOWER
+      }
+    });
+
+    for (let tower of towers) {
+      roleTower.run(tower);
+    }
+
+    // Spawn all of our creeps
+
+    // Spawn miners if possible
+    if (spawn.room.canMine()) {
+
+      let sources = spawn.room.find(FIND_SOURCES);
+      for (let source of sources) {
+        if (_.some(creepsInRoom, crp => crp.memory.role === c.MINER
+          && crp.memory.sourceId === source.id)) {
+          continue;
+        }
+        let containers = source.pos.findInRange(FIND_STRUCTURES, 1, {
+          filter: s => s.structureType === STRUCTURE_CONTAINER
+        });
+        if (containers.length > 0) {
+          result = spawn.spawnMiner(source, containers[0]);
+          break;
+        }
+      }
+    }
+    // Harvesters
+    if (!result) {
+
+      if (numHarvesters < MIN_HARVESTERS) {
+        result = spawn.spawnCustom(energy, c.HARVESTER);
+
+        if (result === ERR_NOT_ENOUGH_ENERGY && numHarvesters === 0) {
+          result = spawn.spawnCustom(spawn.room.energyAvailable, c.HARVESTER);
+        }
+      } else if (numUpgraders < MIN_UPGRADERS) {
+        result = spawn.spawnCustom(energy, c.UPGRADER);
+      } else if (numRepairers < MIN_REPAIRERS) {
+        result = spawn.spawnCustom(energy, c.REPAIRER);
+      } else if (numBuilders < MIN_BUILDERS) {
+        result = spawn.spawnCustom(energy, c.BUILDER);
+      } else if (numWallRepairers < MIN_WALL_REPAIRERS) {
+        result = spawn.spawnCustom(energy, c.WALL_REPAIRER);
+      } else {
+        result = spawn.spawnCustom(energy, DEFAULT_ROLE_NAME);
+      }
+    }
+
+    // print name to console if spawning was a success
+    // name > 0 would not work since string > 0 returns false
+    if (result === OK || DEBUGGING) {
+      console.log('----------------------');
+      console.log(`${numMiners} Miners: ${miners}`);
+      console.log(`${numHarvesters} of ${MIN_HARVESTERS} Harvesters: ${harvesters}`);
+      console.log(`${numUpgraders} of ${MIN_UPGRADERS} Upgraders: ${upgraders}`);
+      console.log(`${numRepairers} of ${MIN_REPAIRERS} Repairers: ${repairers}`);
+      console.log(`${numBuilders} of ${MIN_BUILDERS} Builders: ${builders}`);
+      console.log(`${numWallRepairers} of ${MIN_WALL_REPAIRERS} Wall Repairers: ${wallRepairers}`);
+    }
+  }
+};
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+module.exports = function() {
+  if (!Creep.prototype._moveTo) {
+    Creep.prototype._moveTo = Creep.prototype.moveTo;
+
+    Creep.prototype.moveTo = function(target) {
+      this._moveTo(target, {
+        visualizePathStyle: {
+          stroke: '#6664ff',
+          strokeWidth: 0.2,
+          opacity: 0.3,
+          lineStyle: 'dashed',
+          fill: 'transparent'
+        }
+      });
+    };
+  }
+};
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// prototype.spawn.js
+const c = __webpack_require__(1);
+
+const NAMES = [
+  'Jim',
+  'Nathan',
+  'Samuel',
+  'Anna',
+  'Crystal',
+  'David',
+  'Andy',
+  'Joey',
+  'Tom',
+  'Diane',
+  'Tina',
+  'Gertrude',
+  'Bertha',
+  'George',
+  'Clyde',
+  'John',
+  'Matthew',
+  'Mark',
+  'Luke',
+  'Bethany',
+  'Deborah',
+  'Debbie',
+  'Ezra',
+  'Nehemiah',
+  'Simian',
+];
+
+const DEFAULT_PARTS = [
+  WORK,
+  CARRY,
+  MOVE
+];
+
+function getAvailableName() {
+  for (let name of NAMES) {
+    if (!Game.creeps[name]) {
+      return name;
+    }
+  }
+}
+
+module.exports = function () {
+  const minerBody = [
+    WORK, WORK, WORK, WORK, WORK, MOVE,
+  ];
+  let minerCost = _.sum(minerBody, p => BODYPART_COST[p]);
+
+  Room.prototype.canMine = function () {
+    return this.energyAvailable > minerCost;
+  };
+  StructureSpawn.prototype.spawnCustom =
+    function (
+      energy,
+      role,
+      partsToUse = DEFAULT_PARTS) {
+      const costOfParts = _.sum(partsToUse, (p) => BODYPART_COST[p]);
+      let i;
+      let numberOfParts = Math.floor(energy / costOfParts);
+      let body = [];
+
+      for (let part of partsToUse) {
+        for (i = 0; i < numberOfParts; i++) {
+          body.push(part);
+        }
+      }
+      let name = getAvailableName();
+
+      return this.spawnCreep(body, name, {
+        memory: {
+          working: false,
+          role
+        }
+      });
+    };
+
+  StructureSpawn.prototype.spawnMiner =
+    function (
+      source, container
+    ) {
+      let sourceId = source.id;
+      let containerId = container.id;
+
+      let creepName = getAvailableName();
+      return this.spawnCreep(minerBody, creepName, {
+        memory: {
+          sourceId,
+          containerId,
+          role: c.MINER,
+        }
+      });
+    };
+};
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const c = __webpack_require__(1);
+const roleHarvester = __webpack_require__(0);
+
+module.exports = {
+  setFlag: function (creep) {
+    // if creep is working but has no energy left
+    if (creep.memory.working && creep.carry.energy === 0) {
+      // switch state
+      creep.memory.working = false;
+    }
+    // if creep is harvesting energy but is full
+    else if (
+      !creep.memory.working
+      &&
+      creep.carry.energy === creep.carryCapacity
+    ) {
+      // switch state
+      creep.memory.working = true;
+    }
+  },
+  // a function to run the logic for this role
+  front: function () {
+    for (let i = 1; i <= c.NUM_BUCKETS; i++) {
+      let creep = Game.creeps[`BB${i}`];
+
+      if (!creep) continue;
+
+      this.frontIndex = i;
+      this.setFlag(creep);
+
+      if (creep.memory.working) {
+        for (let i = 2; i <= c.NUM_BUCKETS; i++) {
+          let target = Game.creeps[`BB${i}`];
+          if (target) {
+            if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+              creep.moveTo(target);
+            }
+            return true;
+          }
+        }
+        roleHarvester.run(creep);
+      } else {
+        let target = Game.flags.BB1.pos.findClosestByRange(FIND_SOURCES);
+
+        if (!target) {
+          creep.moveTo(Game.flags.BB1);
+          return false;
+        }
+
+        //gather energy
+        if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(target);
+        }
+      }
+    }
+  },
+  middle: function () {
+    // First get all the creeps that exist.
+    let creeps = [];
+    for (let i = this.frontIndex + 1; i < this.backIndex; i++) {
+      let creep = Game.creeps[`BB${i}`];
+      if (creep) creeps.push(creep);
+    }
+    // Now iterate through them.
+    for (let i = 0; i < creeps.length; i++) {
+      // Get the creep
+      let creep = creeps[i];
+      this.setFlag(creep);
+
+      if (creep.memory.working) {
+        // going from lower to higher
+
+        let target;
+        // if we are at the limit go to the back
+        if (i === creeps.length - 1) {
+          target = Game.creeps[`BB${this.backIndex}`];
+        } else {
+          target = creeps[i + 1];
+        }
+
+        if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(target);
+        }
+      } else {
+        // going from higher to lower
+
+        let target;
+        // if we are at the beginning go to frontCreep
+        if (i === 0) {
+          target = Game.creeps[`BB${this.frontIndex}`];
+        } else {
+          target = creeps[i - 1];
+        }
+
+        if (target.transfer(creep, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(target);
+        }
+      }
+    }
+  },
+  back: function () {
+    for (let i = c.NUM_BUCKETS; i > this.frontIndex; i--) {
+      let creep = Game.creeps[`BB${i}`];
+
+      if (!creep) continue;
+      this.backIndex = i;
+      this.setFlag(creep);
+
+      if (creep.memory.working) {
+        roleHarvester.run(creep);
+      } else {
+        for (let j = i; j > 1; j--) {
+          let target = Game.creeps[`BB${j}`];
+
+          if (!target) continue;
+
+          if (target.transfer(creep, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(target);
+            return true;
+          }
+        }
+      }
+    }
+  }
+};
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const roleBuilder = __webpack_require__(2);
+const roleHarvester = __webpack_require__(0);
+// const c = require('./constants');
+
+module.exports = {
+  // a function to run the logic for this role
+  run: function(creep) {
+    // if creep is trying to repair something but has no energy left
+    if (creep.memory.working && creep.carry.energy === 0) {
+      // switch state
+      creep.memory.working = false;
+    }
+    // if creep is harvesting energy but is full
+    else if (
+      !creep.memory.working &&
+      creep.carry.energy === creep.carryCapacity
+    ) {
+      // switch state
+      creep.memory.working = true;
+    }
+
+    // if creep is supposed to repair something
+    if (creep.memory.working) {
+      this.default(creep);
+    }
+    // if creep is supposed to harvest energy from source
+    else {
+      roleHarvester.harvest(creep);
+    }
+  },
+  repair: function(creep) {
+    creep.say('repairing');
+    // find closest structure with less than max hits
+    // Exclude walls because they have way too many max hits and would keep
+    // our repairers busy forever. We have to find a solution for that later.
+    let structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      // the second argument for findClosestByPath is an object which takes
+      // a property called filter which can be a function
+      // we use the arrow operator to define it
+      filter: s => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+    });
+
+    // if we find one
+    if (structure) {
+      // try to repair it, if it is out of range
+      if (creep.repair(structure) === ERR_NOT_IN_RANGE) {
+        // move towards it
+        creep.moveTo(structure);
+      }
+    }
+    // if we can't fine one
+    else {
+      // look for construction sites
+      roleBuilder.run(creep);
+    }
+  },
+  default: function(creep) {
+    // Find find the nearest damaged structure and construction site
+    // noinspection JSIncompatibleTypesComparison
+    // creep.say('repair/building');
+    let structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: s => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+    });
+    let constSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+
+    // Then find which of those is closest
+    let opts = [];
+    if (constSite) {
+      opts.push(constSite);
+    }
+    if (structure) {
+      opts.push(structure);
+    }
+    let closest = creep.pos.findClosestByPath(opts);
+
+    // Now build or repair whichever is closest
+    if (closest === constSite && creep.build(constSite) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(closest);
+    } else if (
+      closest === structure &&
+      creep.repair(structure) === ERR_NOT_IN_RANGE
+    ) {
+      creep.moveTo(closest);
+    } else {
+      // look for construction sites
+      roleBuilder.run(creep);
+    }
+  }
+};
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const roleBuilder = __webpack_require__(2);
+const roleHarvester = __webpack_require__(0);
+// const c = require('./constants');
+
+module.exports = {
+  // a function to run the logic for this role
+  run: function(creep) {
+    // if creep is trying to repair something but has no energy left
+    if (creep.memory.working && creep.carry.energy === 0) {
+      // switch state
+      creep.memory.working = false;
+    }
+    // if creep is harvesting energy but is full
+    else if (
+      !creep.memory.working &&
+      creep.carry.energy === creep.carryCapacity
+    ) {
+      // switch state
+      creep.memory.working = true;
+    }
+
+    // if creep is supposed to repair something
+    if (creep.memory.working) {
+      this.walls(creep);
+    }
+    // if creep is supposed to harvest energy from source
+    else {
+      roleHarvester.harvest(creep);
+    }
+  },
+  walls: function(creep) {
+    // get walls that need repaired
+    // creep.say('repairing walls');
+    let walls = creep.room.find(FIND_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_WALL
+    });
+
+    let target;
+    for (let pct = 0.0001; pct <= 1; pct += 0.0001) {
+      target = creep.pos.findClosestByPath(walls, {
+        filter: w => w.hits / w.hitsMax < pct
+      });
+
+      if (target) {
+        break;
+      }
+    }
+
+    if (target && creep.repair(target) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(target);
+    } else if (!target) {
+      roleBuilder.run(creep);
+    }
+  }
+};
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+module.exports = {
+  // a function to run the logic for this role
+  run: function (creep) {
+    let source = Game.getObjectById(creep.memory.sourceId);
+    if (creep.memory.containerId) {
+      creep.memory.containerId = source.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: s => s.structureType === STRUCTURE_CONTAINER
+      })[0].id;
+    }
+    let container = Game.getObjectById(creep.memory.containerId);
+
+    if (creep.pos.isEqualTo(container.pos)) {
+      creep.harvest(source);
+    } else {
+      creep.moveTo(container);
+    }
+  }
+};
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+module.exports = {
+  run: function(tower) {
+    let target = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    let damagedCreep = tower.pos.findClosestByPath(FIND_MY_CREEPS, {
+      // the second argument for findClosestByPath is an object which takes
+      // a property called filter which can be a function
+      // we use the arrow operator to define it
+      filter: s => s.hits < s.hitsMax
+    });
+
+    if (target) {
+      tower.attack(target);
+    } else if (damagedCreep) {
+      tower.heal(damagedCreep);
+    }
+  }
+};
+
+
+/***/ })
+/******/ ]);
