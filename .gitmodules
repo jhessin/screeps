@@ -1,3 +1,6 @@
 [submodule "default/ScreepsAutocomplete"]
 	path = default/ScreepsAutocomplete
 	url = https://github.com/Garethp/ScreepsAutocomplete.git
+[submodule "ScreepsAutocomplete"]
+	path = ScreepsAutocomplete
+	url = https://github.com/Garethp/ScreepsAutocomplete.git
