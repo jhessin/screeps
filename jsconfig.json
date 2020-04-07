@@ -1,11 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "checkJs": true,
-    "module": "umd",
-    "allowSyntheticDefaultImports": true
+    "module": "esnext",
+    "lib": ["esnext"],
+    "target": "es2017",
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "baseUrl": "src/",
+    "sourceMap": true,
+    "strict": true,
+    "experimentalDecorators": true,
+    "noImplicitReturns": true,
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false
   },
-  "typeAcquisition": {
-    "include": ["./types"]
-  }
+  "exclude": [
+    "node_modules"
+  ]
 }

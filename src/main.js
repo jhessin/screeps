@@ -1,13 +1,44 @@
+import { Harvester } from './roles';
+
+const minHarvesters = 2;
+
 // The main entry point for the program
 export function loop() {
   // console.log(`Current game tick: ${Game.time}`);
   console.log('=================================');
-  console.log(`cpu.limit: ${Game.cpu.limit}`);
-  console.log(`cpu.tickLimit: ${Game.cpu.tickLimit}`);
-  console.log(`cpu.limit: ${Game.cpu.limit}`);
+  // Run memory cleanup semiregularly
   if (Game.time % 500 === 0) {
     cleanupMemory();
   }
+
+  // enumerate the roles
+  let harvester = new Harvester();
+
+  /** @type {[Creep]} */
+  let harvesters = harvester.creepWith();
+
+  // Log your creeps
+  console.log(
+    `${harvesters.length} of ${minHarvesters} ${harvester.name}: ${harvesters}`,
+  );
+
+  // Run spawns
+  for (let name in Game.spawns) {
+    let spawn = Game.spawns[name];
+
+    if (harvesters.length < minHarvesters) {
+      harvesters.spawn(spawn);
+    }
+  }
+
+  // Run creeps
+  for (let name in Game.creeps) {
+    let creep = Game.creeps[name];
+    let harvester = new Harvester(creep);
+    harvester.run();
+  }
+
+  console.log(`Done: CPU: ${Game.cpu.getUsed()}`);
 }
 
 function cleanupMemory() {

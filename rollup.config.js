@@ -4,6 +4,7 @@ import clear from 'rollup-plugin-clear';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import screeps from 'rollup-plugin-screeps';
+import flow from 'rollup-plugin-flow';
 
 let cfg;
 const dest = process.env.DEST;
@@ -29,6 +30,7 @@ export default {
     commonjs({
       main: ['loop'],
     }),
+    flow({pretty: true}),
     screeps({ config: cfg, dryRun: cfg == null }),
   ],
 };
