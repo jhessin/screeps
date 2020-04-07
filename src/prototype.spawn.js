@@ -1,7 +1,7 @@
 // prototype.spawn.js
-const c = require('./constants');
+import c from './constants';
 
-const NAMES = [
+export const NAMES = [
   'Jim',
   'Nathan',
   'Samuel',
@@ -29,13 +29,9 @@ const NAMES = [
   'Simian',
 ];
 
-const DEFAULT_PARTS = [
-  WORK,
-  CARRY,
-  MOVE
-];
+export const DEFAULT_PARTS = [WORK, CARRY, MOVE];
 
-function getAvailableName() {
+export function getAvailableName() {
   for (let name of NAMES) {
     if (!Game.creeps[name]) {
       return name;
@@ -43,54 +39,49 @@ function getAvailableName() {
   }
 }
 
-module.exports = function () {
-  const minerBody = [
-    WORK, WORK, WORK, WORK, WORK, MOVE,
-  ];
+export default function() {
+  const minerBody = [WORK, WORK, WORK, WORK, WORK, MOVE];
   let minerCost = _.sum(minerBody, p => BODYPART_COST[p]);
 
-  Room.prototype.canMine = function () {
+  Room.prototype.canMine = function() {
     return this.energyAvailable > minerCost;
   };
-  StructureSpawn.prototype.spawnCustom =
-    function (
-      energy,
-      role,
-      partsToUse = DEFAULT_PARTS) {
-      const costOfParts = _.sum(partsToUse, (p) => BODYPART_COST[p]);
-      let i;
-      let numberOfParts = Math.floor(energy / costOfParts);
-      let body = [];
+  StructureSpawn.prototype.spawnCustom = function(
+    energy,
+    role,
+    partsToUse = DEFAULT_PARTS,
+  ) {
+    const costOfParts = _.sum(partsToUse, p => BODYPART_COST[p]);
+    let i;
+    let numberOfParts = Math.floor(energy / costOfParts);
+    let body = [];
 
-      for (let part of partsToUse) {
-        for (i = 0; i < numberOfParts; i++) {
-          body.push(part);
-        }
+    for (let part of partsToUse) {
+      for (i = 0; i < numberOfParts; i++) {
+        body.push(part);
       }
-      let name = getAvailableName();
+    }
+    let name = getAvailableName();
 
-      return this.spawnCreep(body, name, {
-        memory: {
-          working: false,
-          role
-        }
-      });
-    };
+    return this.spawnCreep(body, name, {
+      memory: {
+        working: false,
+        role,
+      },
+    });
+  };
 
-  StructureSpawn.prototype.spawnMiner =
-    function (
-      source, container
-    ) {
-      let sourceId = source.id;
-      let containerId = container.id;
+  StructureSpawn.prototype.spawnMiner = function(source, container) {
+    let sourceId = source.id;
+    let containerId = container.id;
 
-      let creepName = getAvailableName();
-      return this.spawnCreep(minerBody, creepName, {
-        memory: {
-          sourceId,
-          containerId,
-          role: c.MINER,
-        }
-      });
-    };
-};
+    let creepName = getAvailableName();
+    return this.spawnCreep(minerBody, creepName, {
+      memory: {
+        sourceId,
+        containerId,
+        role: c.MINER,
+      },
+    });
+  };
+}

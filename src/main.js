@@ -1,23 +1,25 @@
 // import modules
-require('./prototype.creep')();
-require('./prototype.spawn')();
+import protoCreep from './prototype.creep';
+protoCreep();
+import protoSpawn from './prototype.spawn';
+protoSpawn();
 
 const DEBUGGING = false;
 
 // Creep roles
-const roleBucket = require('./role.bucket');
-const roleHarvester = require('./role.harvester');
-const roleUpgrader = require('./role.upgrader');
-const roleBuilder = require('./role.builder');
-const roleRepairer = require('./role.repairer');
-const roleWallRepairer = require('./role.wallRepairer');
-const roleMiner = require('./role.miner');
+import roleBucket from './role.bucket';
+import roleHarvester from './role.harvester';
+import roleUpgrader from './role.upgrader';
+import roleBuilder from './role.builder';
+import roleRepairer from './role.repairer';
+import roleWallRepairer from './role.wallRepairer';
+import roleMiner from './role.miner';
 
 // Structure roles
-const roleTower = require('./role.tower');
+import roleTower from './role.tower';
 
 // Constants
-const c = require('./constants');
+import c from './constants';
 
 // setup some minimum numbers for different roles
 const MIN_HARVESTERS = 2;
@@ -31,7 +33,7 @@ const DEFAULT_ROLE_NAME = c.REPAIRER;
 const DEFAULT_ROLE = roleRepairer;
 
 // The main entry point for the program
-module.exports.loop = function () {
+export function loop() {
   // check for memory entries of died creeps by iterating over Memory.creeps
   for (let name in Memory.creeps) {
     // and checking if the creep is still alive
@@ -81,26 +83,26 @@ module.exports.loop = function () {
     // count the number of creeps alive for each role
     // _.sum will count the number of properties in Game.creeps filtered by the
     //  arrow function, which checks for the creep being a harvester
-    let harvesters = _.filter(Game.creeps, crp => crp.memory.role === c.HARVESTER);
+    let harvesters = _.filter(
+      Game.creeps,
+      crp => crp.memory.role === c.HARVESTER,
+    );
     let numHarvesters = harvesters.length;
     let upgraders = _.filter(
       Game.creeps,
-      crp => crp.memory.role === c.UPGRADER
+      crp => crp.memory.role === c.UPGRADER,
     );
     let numUpgraders = upgraders.length;
-    let builders = _.filter(
-      Game.creeps,
-      crp => crp.memory.role === c.BUILDER
-    );
+    let builders = _.filter(Game.creeps, crp => crp.memory.role === c.BUILDER);
     let numBuilders = builders.length;
     let repairers = _.filter(
       Game.creeps,
-      crp => crp.memory.role === c.REPAIRER
+      crp => crp.memory.role === c.REPAIRER,
     );
     let numRepairers = repairers.length;
     let wallRepairers = _.filter(
       Game.creeps,
-      crp => crp.memory.role === c.WALL_REPAIRER
+      crp => crp.memory.role === c.WALL_REPAIRER,
     );
     let numWallRepairers = wallRepairers.length;
     let miners = _.filter(creepsInRoom, crp => crp.memory.role === c.MINER);
@@ -112,8 +114,8 @@ module.exports.loop = function () {
     // STRUCTURE ROLES
     let towers = spawn.room.find(FIND_STRUCTURES, {
       filter: {
-        structureType: STRUCTURE_TOWER
-      }
+        structureType: STRUCTURE_TOWER,
+      },
     });
 
     for (let tower of towers) {
@@ -124,15 +126,19 @@ module.exports.loop = function () {
 
     // Spawn miners if possible
     if (spawn.room.canMine()) {
-
       let sources = spawn.room.find(FIND_SOURCES);
       for (let source of sources) {
-        if (_.some(creepsInRoom, crp => crp.memory.role === c.MINER
-          && crp.memory.sourceId === source.id)) {
+        if (
+          _.some(
+            creepsInRoom,
+            crp =>
+              crp.memory.role === c.MINER && crp.memory.sourceId === source.id,
+          )
+        ) {
           continue;
         }
         let containers = source.pos.findInRange(FIND_STRUCTURES, 1, {
-          filter: s => s.structureType === STRUCTURE_CONTAINER
+          filter: s => s.structureType === STRUCTURE_CONTAINER,
         });
         if (containers.length > 0) {
           result = spawn.spawnMiner(source, containers[0]);
@@ -142,7 +148,6 @@ module.exports.loop = function () {
     }
     // Harvesters
     if (!result) {
-
       if (numHarvesters < MIN_HARVESTERS) {
         result = spawn.spawnCustom(energy, c.HARVESTER);
 
@@ -167,11 +172,19 @@ module.exports.loop = function () {
     if (result === OK || DEBUGGING) {
       console.log('----------------------');
       console.log(`${numMiners} Miners: ${miners}`);
-      console.log(`${numHarvesters} of ${MIN_HARVESTERS} Harvesters: ${harvesters}`);
-      console.log(`${numUpgraders} of ${MIN_UPGRADERS} Upgraders: ${upgraders}`);
-      console.log(`${numRepairers} of ${MIN_REPAIRERS} Repairers: ${repairers}`);
+      console.log(
+        `${numHarvesters} of ${MIN_HARVESTERS} Harvesters: ${harvesters}`,
+      );
+      console.log(
+        `${numUpgraders} of ${MIN_UPGRADERS} Upgraders: ${upgraders}`,
+      );
+      console.log(
+        `${numRepairers} of ${MIN_REPAIRERS} Repairers: ${repairers}`,
+      );
       console.log(`${numBuilders} of ${MIN_BUILDERS} Builders: ${builders}`);
-      console.log(`${numWallRepairers} of ${MIN_WALL_REPAIRERS} Wall Repairers: ${wallRepairers}`);
+      console.log(
+        `${numWallRepairers} of ${MIN_WALL_REPAIRERS} Wall Repairers: ${wallRepairers}`,
+      );
     }
   }
-};
+}

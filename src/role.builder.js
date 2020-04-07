@@ -1,10 +1,10 @@
-const roleUpgrader = require('./role.upgrader');
-const roleHarvester = require('./role.harvester');
+import roleUpgrader from './role.upgrader';
+import roleHarvester from './role.harvester';
 // const c = require('./constants');
 
-module.exports = {
+export default {
   // a function to run the logic for this role
-  run: function (creep) {
+  run: function(creep) {
     // if creep is trying to complete a constructionSite but has no energy left
 
     if (creep.memory.working && creep.carry.energy === 0) {
@@ -12,7 +12,10 @@ module.exports = {
       creep.memory.working = false;
     }
     // if creep is harvesting energy but is full
-    else if (!creep.memory.working && creep.carry.energy === creep.carryCapacity) {
+    else if (
+      !creep.memory.working &&
+      creep.carry.energy === creep.carryCapacity
+    ) {
       // switch state
       creep.memory.working = true;
     }
@@ -21,7 +24,9 @@ module.exports = {
     if (creep.memory.working) {
       // find closest constructionSite
       // creep.say('building');
-      let constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+      let constructionSite = creep.pos.findClosestByPath(
+        FIND_CONSTRUCTION_SITES,
+      );
       // if one is found
       if (constructionSite) {
         // try to build, if the constructionSite is not in range

@@ -1,8 +1,8 @@
-const roleBuilder = require('./role.builder');
-const roleHarvester = require('./role.harvester');
+import roleBuilder from './role.builder';
+import roleHarvester from './role.harvester';
 // const c = require('./constants');
 
-module.exports = {
+export default {
   // a function to run the logic for this role
   run: function(creep) {
     // if creep is trying to repair something but has no energy left
@@ -37,7 +37,7 @@ module.exports = {
       // the second argument for findClosestByPath is an object which takes
       // a property called filter which can be a function
       // we use the arrow operator to define it
-      filter: s => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+      filter: s => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
     });
 
     // if we find one
@@ -59,7 +59,7 @@ module.exports = {
     // noinspection JSIncompatibleTypesComparison
     // creep.say('repair/building');
     let structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: s => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+      filter: s => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
     });
     let constSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
 
@@ -85,5 +85,5 @@ module.exports = {
       // look for construction sites
       roleBuilder.run(creep);
     }
-  }
+  },
 };

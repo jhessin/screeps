@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   UPGRADER: 'upgrader',
   BUILDER: 'builder',
   HARVESTER: 'harvester',
@@ -6,5 +6,5 @@ module.exports = {
   WALL_REPAIRER: 'wall-repairer',
   NUM_BUCKETS: 7,
   BUCKETIER: 'bucketier',
-  MINER: 'miner'
+  MINER: 'miner',
 };

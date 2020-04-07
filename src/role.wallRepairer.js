@@ -1,8 +1,8 @@
-const roleBuilder = require('./role.builder');
-const roleHarvester = require('./role.harvester');
+import roleBuilder from './role.builder';
+import roleHarvester from './role.harvester';
 // const c = require('./constants');
 
-module.exports = {
+export default {
   // a function to run the logic for this role
   run: function(creep) {
     // if creep is trying to repair something but has no energy left
@@ -32,13 +32,13 @@ module.exports = {
     // get walls that need repaired
     // creep.say('repairing walls');
     let walls = creep.room.find(FIND_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_WALL
+      filter: s => s.structureType === STRUCTURE_WALL,
     });
 
     let target;
     for (let pct = 0.0001; pct <= 1; pct += 0.0001) {
       target = creep.pos.findClosestByPath(walls, {
-        filter: w => w.hits / w.hitsMax < pct
+        filter: w => w.hits / w.hitsMax < pct,
       });
 
       if (target) {
@@ -51,5 +51,5 @@ module.exports = {
     } else if (!target) {
       roleBuilder.run(creep);
     }
-  }
+  },
 };

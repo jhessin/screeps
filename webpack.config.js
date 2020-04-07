@@ -1,7 +1,7 @@
 const screeps = require('./screeps');
 const path = require('path');
 
-module.exports = {
+export default {
   target: 'node',
   entry: './src/main.js',
   output: {

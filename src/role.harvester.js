@@ -1,9 +1,9 @@
 // const c = require('./constants');
 
 // TODO: Make a separate lorry role using [CARRY,CARRY,MOVE]
-module.exports = {
+export default {
   // a function to run the logic for this role
-  run: function (creep) {
+  run: function(creep) {
     // if creep is bringing energy to the spawn or an extension but has no energy left
     if (creep.memory.working && creep.carry.energy === 0) {
       // switch state
@@ -11,8 +11,7 @@ module.exports = {
     }
     // if creep is harvesting energy but is full
     else if (
-      !creep.memory.working
-      &&
+      !creep.memory.working &&
       creep.carry.energy === creep.carryCapacity
     ) {
       // switch state
@@ -28,7 +27,7 @@ module.exports = {
         // the second argument for findClosestByPath is an object which takes
         // a property called filter which can be a function
         // we use the arrow operator to define it
-        filter: s => s.energy < s.energyCapacity
+        filter: s => s.energy < s.energyCapacity,
       });
       // console.log(`found structure: ${structure}`);
 
@@ -47,18 +46,20 @@ module.exports = {
       this.harvest(creep);
     }
   },
-  harvest: function (creep) {
+  harvest: function(creep) {
     // find closest source
     // creep.say('harvesting');
+    return this.harvestFromSource(creep);
     let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
     let structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0
+      filter: s =>
+        s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0,
     });
     let tombstone = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
-      filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+      filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0,
     });
     let ruin = creep.pos.findClosestByPath(FIND_RUINS, {
-      filter: r => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+      filter: r => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0,
     });
     let dropped = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
 
@@ -101,7 +102,7 @@ module.exports = {
       }
     }
   },
-  harvestFromSource: function (creep) {
+  harvestFromSource: function(creep) {
     // find closest source
     // creep.say('harvesting');
     let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);

@@ -1,8 +1,8 @@
-const c = require('./constants');
-const roleHarvester = require('./role.harvester');
+import c from './constants';
+import roleHarvester from './role.harvester';
 
-module.exports = {
-  setFlag: function (creep) {
+export default {
+  setFlag: function(creep) {
     // if creep is working but has no energy left
     if (creep.memory.working && creep.carry.energy === 0) {
       // switch state
@@ -10,8 +10,7 @@ module.exports = {
     }
     // if creep is harvesting energy but is full
     else if (
-      !creep.memory.working
-      &&
+      !creep.memory.working &&
       creep.carry.energy === creep.carryCapacity
     ) {
       // switch state
@@ -19,7 +18,7 @@ module.exports = {
     }
   },
   // a function to run the logic for this role
-  front: function () {
+  front: function() {
     for (let i = 1; i <= c.NUM_BUCKETS; i++) {
       let creep = Game.creeps[`BB${i}`];
 
@@ -54,7 +53,7 @@ module.exports = {
       }
     }
   },
-  middle: function () {
+  middle: function() {
     // First get all the creeps that exist.
     let creeps = [];
     for (let i = this.frontIndex + 1; i < this.backIndex; i++) {
@@ -98,7 +97,7 @@ module.exports = {
       }
     }
   },
-  back: function () {
+  back: function() {
     for (let i = c.NUM_BUCKETS; i > this.frontIndex; i--) {
       let creep = Game.creeps[`BB${i}`];
 
@@ -121,5 +120,5 @@ module.exports = {
         }
       }
     }
-  }
+  },
 };

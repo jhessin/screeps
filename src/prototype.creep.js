@@ -1,4 +1,4 @@
-module.exports = function() {
+export default function() {
   if (!Creep.prototype._moveTo) {
     Creep.prototype._moveTo = Creep.prototype.moveTo;
 
@@ -9,9 +9,9 @@ module.exports = function() {
           strokeWidth: 0.2,
           opacity: 0.3,
           lineStyle: 'dashed',
-          fill: 'transparent'
-        }
+          fill: 'transparent',
+        },
       });
     };
   }
-};
+}

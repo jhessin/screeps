@@ -2,3 +2,5 @@
 node_modules/
 .sync
 screeps.js
+screeps.json
+dist/
